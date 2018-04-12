@@ -101,7 +101,7 @@
 
     <div class="form-group {!! FormMessage::getErrorClass('host') !!}">
         {!! Form::label('host', 'Database Host', ['class' => 'control-label']) !!}
-        {!! Form::text('host', Request::input('host')?:env('DB_HOST'), ['class' => 'form-control']) !!}
+        {!! Form::text('host', Request::input('host')?:env('DB_HOST').(env('DB_PORT')?':'.env('DB_PORT'):''), ['class' => 'form-control']) !!}
         <span class="help-block">{!! FormMessage::getErrorMessage('host') !!}</span>
     </div>
 

@@ -16,7 +16,8 @@ The steps are are as follows:
 
 1. Add "web-feet/coasterframework": "5.5.*" to the composer.json file and run composer update
 2. Go to the root directory of your project.
-3. Run the script <code>php artisan coaster:update-assets</code>
-4. Add the service provider CoasterCms\CmsServiceProvider::class to your config/app.php file.
-5. Go to a web browser and follow the install script that should have appeared
-6. Upload or create a theme
+3. Add the service provider CoasterCms\CmsServiceProvider::class to your config/app.php file.
+4. Add the service provider CoasterCms\Providers\CoasterRoutesProvider::class to your config/app.php file.
+5. Run the script <code>php artisan coaster:update-assets</code>
+6. Go to a web browser and follow the install script that should have appeared
+7. Upload or create a theme
