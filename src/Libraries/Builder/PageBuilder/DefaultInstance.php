@@ -684,6 +684,11 @@ class DefaultInstance
             return $blockData;
         }
 
+        // return block object
+        if (isset($options['object']) && $options['object']) {
+            return $block;
+        }
+
         // set version that data has been grabbed for (0 = latest)
         if(empty($options['version'])) {
             $options['version'] = $usingGlobalContent ? 0 : $this->pageVersion($pageId);
