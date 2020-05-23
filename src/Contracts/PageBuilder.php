@@ -140,9 +140,10 @@ interface PageBuilder
 
     /**
      * @param string $section
+     * @param array $viewData
      * @return string
      */
-    public function section($section);
+    public function section($section, $viewData = []);
 
     /**
      * @param array $options
@@ -164,6 +165,14 @@ interface PageBuilder
     public function sitemap($options = []);
 
     /**
+     * @param int $categoryPageId
+     * @param array|null $pages
+     * @param array $options
+     * @return string
+     */
+    public function pages($categoryPageId = null, $pages = null, $options = []);
+
+    /**
      * @param array $options
      * @return string
      */
@@ -176,24 +185,24 @@ interface PageBuilder
     public function categoryLink($direction = 'next');
 
     /**
-     * @param string $blockName
-     * @param string $search
+     * @param string|array $blockName
+     * @param string|array $search
      * @param array $options
      * @return string
      */
     public function filter($blockName, $search, $options = []);
 
     /**
-     * @param string $blockName
-     * @param string $search
+     * @param string|array $blockName
+     * @param string|array $search
      * @param array $options
      * @return string
      */
     public function categoryFilter($blockName, $search, $options = []);
 
     /**
-     * @param string $blockName
-     * @param string $search
+     * @param string|array $blockName
+     * @param string|array $search
      * @param array $options
      * @return string
      */

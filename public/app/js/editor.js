@@ -1,6 +1,6 @@
 var tinymce_cnf = {
     selector: 'textarea.tinymce',
-    plugins: 'link table code fullscreen preview textcolor paste image media responsivefilemanager anchor codesample',
+    plugins: 'link lists table code fullscreen preview textcolor paste image media responsivefilemanager anchor codesample',
     toolbar: "responsivefilemanager undo redo | styleselect | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist indent outdent | link unlink anchor | image media | code | codesample",
     min_height: 160,
     paste_as_text: true,
@@ -8,7 +8,8 @@ var tinymce_cnf = {
     valid_elements : '*[*]',
     external_filemanager_path: get_public_url()+"filemanager/",
     filemanager_title: "Responsive Filemanager",
-    external_plugins: { "filemanager" : get_public_url()+"filemanager/plugin.min.js"}
+    external_plugins: { "filemanager" : get_public_url()+"filemanager/plugin.min.js"},
+    branding: false
 };
 var tinymce_fetched_cms_pages = false;
 
@@ -58,7 +59,7 @@ function load_editor_js(rerun) {
     });
 
     // date time block
-    $('.datetimepicker').datetimepicker({dateFormat: dateFormat, timeFormat: timeFormat});
+    $('.datetimepicker').datetimepicker({dateFormat: dateFormat, timeFormat: timeFormat, showSecond: false, showMillisec: false, showMicrosec: false, showTimezone: false});
 
     // image blocks
     $(".fancybox").fancybox();
@@ -210,3 +211,47 @@ function checkMaxRows(repeaterTable) {
         }
     }
 }
+
+$('.length-guide').on('input', function () {
+
+    var min = parseInt($(this).data('min'));
+    var max = parseInt($(this).data('max'));
+    min = min < 0 ? 0 : min;
+    max = max <= 0 ? 1 : max;
+
+    var wrapEl = $(this).parent();
+    var barEl = wrapEl.find('.progress-bar').first();
+
+    if (!barEl.length) {
+        wrapEl.append(
+            '<div class="progress-wrap row" style="padding: 0 ;">' +
+            '<div class="col-xs-1 text-center">123</div>' +
+            '<div class="col-xs-11">' +
+            '<div class="progress" style="height: 5px; margin: 7px 0;">' +
+            '<div class="progress-bar"></div>' +
+            '</div>' +
+            '</div>' +
+            '</div>'
+        );
+        barEl = wrapEl.find('.progress-bar').first();
+    }
+
+    var numberEl = wrapEl.find('.text-center').first();
+
+    var length = $(this).val().length;
+    var barWidth = length/max * 100;
+    barWidth = barWidth > 100 ? 100 : barWidth;
+
+    barEl.css('width', barWidth + '%');
+    numberEl.text(length);
+
+    if (length >= min && length <= max) {
+        barEl.addClass('progress-bar-success');
+        barEl.removeClass('progress-bar-danger');
+    } else {
+        barEl.addClass('progress-bar-danger');
+        barEl.removeClass('progress-bar-success');
+    }
+
+}).trigger('input');
+

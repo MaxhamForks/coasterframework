@@ -125,11 +125,12 @@ class PageBuilderFactory implements PageBuilder
     }
 
     /**
+     * @param bool $withThemePath
      * @return string
      */
-    public function templatePath()
+    public function templatePath($withThemePath = true)
     {
-        return $this->_call('templatePath');
+        return $this->_call('templatePath', [$withThemePath]);
     }
 
     /**
@@ -297,11 +298,12 @@ class PageBuilderFactory implements PageBuilder
 
     /**
      * @param string $section
+     * @param array $viewData
      * @return string
      */
-    public function section($section)
+    public function section($section, $viewData = [])
     {
-        return $this->_call('section', [$section]);
+        return $this->_call('section', [$section, $viewData]);
     }
 
     /**
@@ -330,6 +332,17 @@ class PageBuilderFactory implements PageBuilder
     public function sitemap($options = [])
     {
         return $this->_call('sitemap', [$options]);
+    }
+
+    /**
+     * @param int $categoryPageId
+     * @param array|null $pages
+     * @param array $options
+     * @return string
+     */
+    public function pages($categoryPageId = null, $pages = null, $options = [])
+    {
+        return $this->_call('pages', [$categoryPageId, $pages, $options]);
     }
 
     /**

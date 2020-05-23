@@ -24,12 +24,17 @@ use CoasterCms\Models\ThemeTemplate;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Support\Traits\Macroable;
 use Request;
 use URL;
 use View;
 
 class DefaultInstance
 {
+
+    use Macroable {
+        __call as macroCall;
+    }
 
     /**
      * @var Page
@@ -445,7 +450,7 @@ class DefaultInstance
      */
     public function sitemap($options = [])
     {
-        $topLevelPages = Page::where('parent', '=', 0)->get();
+        $topLevelPages = Page::where('parent', '=', 0)->orderBy('order', 'asc')->get();
         $topLevelPages = $topLevelPages->isEmpty() ? [] : $topLevelPages;
         foreach ($topLevelPages as $key => $page) {
             if (!$page->is_live() || !$page->sitemap) {
@@ -453,6 +458,18 @@ class DefaultInstance
             }
         }
         return $this->_renderCategory(0, $topLevelPages, $options);
+    }
+
+    /**
+     * @param int $categoryPageId
+     * @param array|null $pages
+     * @param array $options
+     * @return string
+     */
+    public function pages($categoryPageId = null, $pages = null, $options = [])
+    {
+        $pages = is_null($pages) ? Page::all() : $pages;
+        return $this->_renderCategory($categoryPageId, $pages, $options);
     }
 
     /**
@@ -464,16 +481,15 @@ class DefaultInstance
         $pageId = !empty($options['page_id']) ? $options['page_id'] : $this->pageId();
         if ($pageId) {
             $pages = Page::category_pages($pageId, true);
-            if (!empty($pages)) {
-                if (!empty($options['sitemap'])) {
-                    foreach ($pages as $key => $page) {
-                        if (!$page->sitemap) {
-                            unset($pages[$key]);
-                        }
+            $options += ['renderIfEmpty' => false];
+            if (!empty($options['sitemap'])) {
+                foreach ($pages as $key => $page) {
+                    if (!$page->sitemap) {
+                        unset($pages[$key]);
                     }
                 }
-                return $this->_renderCategory($pageId, $pages, $options);
             }
+            return $this->_renderCategory($pageId, $pages, $options);
         }
         return '';
     }
@@ -548,7 +564,7 @@ class DefaultInstance
                     }
                 }
                 if ($options['operand'] == 'OR' || $k == 0) {
-                    $filteredPages = array_merge($filteredPages, $filteredPagesForBlock);
+                    $filteredPages = $filteredPages + $filteredPagesForBlock;
                 } else {
                     $filteredPages = array_intersect_key($filteredPages, $filteredPagesForBlock);
                 }
@@ -809,7 +825,7 @@ class DefaultInstance
             'renderIfEmpty' => true,
             'view' => 'default',
             'type' => 'all',
-            'per_page' => 20,
+            'per_page' => 0,
             'limit' => 0,
             'content' => '',
             'templates' => [],
@@ -855,9 +871,15 @@ class DefaultInstance
             }
         }
         if (!empty($options['fromPageIds'])) {
+            // keep order of fromPageIds
+            $pagesById = [];
             foreach ($pages as $k => $page) {
-                if (!in_array($page->id, $options['fromPageIds'])) {
-                    unset($pages[$k]);
+                $pagesById[$page->id] = $page;
+            }
+            $pages = [];
+            foreach ($options['fromPageIds'] as $pageId) {
+                if (array_key_exists($pageId, $pagesById)) {
+                    $pages[] = $pagesById[$pageId];
                 }
             }
         }
@@ -889,6 +911,7 @@ class DefaultInstance
             return '';
         }
 
+        $categoryPageId = is_numeric($categoryPageId) ? $categoryPageId : 0;
         $groupPageContainerId = 0;
         if ($categoryPageId && !$options['canonicals']) {
             $categoryPage = Page::preload($categoryPageId);

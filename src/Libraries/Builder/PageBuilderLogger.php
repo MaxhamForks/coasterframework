@@ -5,13 +5,9 @@ use CoasterCms\Exceptions\PageBuilderException;
 use CoasterCms\Libraries\Builder\PageBuilder\DefaultInstance;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Traits\Macroable;
 
 class PageBuilderLogger
 {
-    use Macroable {
-        __call as macroCall;
-    }
 
     /**
      * @var DefaultInstance
@@ -63,6 +59,7 @@ class PageBuilderLogger
     /**
      * @param string $methodName
      * @param array $args
+     * @throws PageBuilderException
      * @return mixed
      */
     public function __call($methodName, $args)
@@ -70,13 +67,16 @@ class PageBuilderLogger
         $logFn = 'debug';
         $logContext = ['method' => $methodName, 'args' => $args, 'macro' => false];
         try {
-            if ($this->hasMacro($methodName)) {
+            if ($this->_pageBuilder->hasMacro($methodName)) {
                 $logContext['macro'] = true;
-                $return = $this->macroCall($methodName, $args);
+                $return = $this->_pageBuilder->macroCall($methodName, $args);
             } else {
                 $return = call_user_func_array([$this->_pageBuilder, $methodName], $args);
             }
         } catch (PageBuilderException $e) {
+            if ($this->_pageBuilder->getData('isThemeBuilder')) {
+                throw $e;
+            }
             $logFn = 'error';
             $return = 'PageBuilder error: ' . $e->getMessage();
         }
